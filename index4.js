@@ -135,45 +135,68 @@ client.on('messageCreate', async message => {
         await message.channel.send({ embeds: [new EmbedBuilder().setTitle("مرحبا بك, هنا تجد دليلك لجميع رتب ورولات سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row] });
     }
     if (cmd === 'تكتات') { const member = message.mentions.members.first(); if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`); }
+   // أوامر إدارية بالصلاحيات
+    if (cmd === 'تكتات') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageGuild)) return message.reply("❌ لا تملك صلاحية إدارة السيرفر.");
+        const member = message.mentions.members.first();
+        if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`);
+    }
+
     if (cmd === 'مسح') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) return message.reply("❌ لا تملك صلاحية حذف الرسائل.");
         const amount = parseInt(args[0]) || 10;
         message.channel.bulkDelete(amount).then(() => message.reply(`✅ تم مسح ${amount} رسالة`));
     }
+
     if (cmd === 'تايم_اوت') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) return message.reply("❌ لا تملك صلاحية التايم أوت.");
         const member = message.mentions.members.first();
         const time = parseInt(args[0]) * 60 * 1000;
         if (member && time) { member.timeout(time); message.reply(`✅ تم إسكات ${member.user.tag}`); }
     }
+
     if (cmd === 'رتبة') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) return message.reply("❌ لا تملك صلاحية إدارة الرتب.");
         const member = message.mentions.members.first();
         const role = message.mentions.roles.first();
         if (member && role) { member.roles.add(role); message.reply('✅ تمت إضافة الرتبة'); }
     }
+
     if (cmd === 'سحب_رتبة') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) return message.reply("❌ لا تملك صلاحية إدارة الرتب.");
         const member = message.mentions.members.first();
         const role = message.mentions.roles.first();
         if (member && role) { member.roles.remove(role); message.reply('✅ تمت إزالة الرتبة'); }
     }
+
     if (cmd === 'تحذير') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) return message.reply("❌ لا تملك صلاحية تحذير الأعضاء.");
         const member = message.mentions.members.first();
         if (!member) return;
         db.warnings[member.id] = (db.warnings[member.id] || 0) + 1;
         saveDb();
         message.reply(`⚠️ تم تحذير ${member.user.tag}. (عدد تحذيراته: ${db.warnings[member.id]})`);
     }
+
     if (cmd === 'تحذيرات') {
         const member = message.mentions.members.first() || message.member;
         message.reply(`العضو ${member.user.tag} لديه ${db.warnings[member.id] || 0} تحذير.`);
     }
+
     if (cmd === 'شيل_تحذير') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.KickMembers)) return message.reply("❌ لا تملك صلاحية تحذير الأعضاء.");
         const member = message.mentions.members.first();
         if (member) { db.warnings[member.id] = 0; saveDb(); message.reply('✅ تم تصفير تحذيرات العضو'); }
     }
+
     if (cmd === 'بند') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return message.reply("❌ لا تملك صلاحية الحظر.");
         const member = message.mentions.members.first();
         if (member) { member.ban(); message.reply('✅ تم حظر العضو'); }
     }
+
     if (cmd === 'فك_بند') {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return message.reply("❌ لا تملك صلاحية الحظر.");
         const userId = args[0];
         message.guild.members.unban(userId).then(() => message.reply('✅ تم فك الحظر'));
     }

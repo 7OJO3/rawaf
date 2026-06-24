@@ -1,5 +1,4 @@
-const { client } = require('./index4.js');
-client.on('messageCreate', async message => {
+const { client, db } = require('./index4.js');client.on('messageCreate', async message => {
     // أمر بدء لعبة المافيا
     if (message.content === '!مافيا') {
         const embed = new EmbedBuilder()

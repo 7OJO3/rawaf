@@ -1,13 +1,23 @@
 const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
-// ربط الملفات الجديدة
+
+// 1. تعريف البوت أولاً
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
+    partials: [Partials.Channel, Partials.Message]
+});
+
+// 2. تعريف قاعدة البيانات (إذا كنتِ تحتاجينها للملفات)
+const db = { points: {} }; 
+
+// 3. تصديرهم للملفات الأخرى
+module.exports = { client, db };
+
+// 4. الآن وبعد أن عرفنا الـ client، نقوم بربط الملفات
 require('./mafia.js');
 require('./roulette.js');
 require('./leaderboard.js');
 
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
-    partials: [Partials.Channel, Partials.Message]
 });
 
 const CONFIG = {

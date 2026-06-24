@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
         const id = interaction.customId;
 
         // معالجة أزرار الخريطة
-        if (id === 'map_roles') return await interaction.reply({ content: '// > `رتب التفاعل`
+        if (id === 'map_roles') return await interaction.reply({ content: '// > **رتب التفاعل**
 
 <@&1519046388430803065> 
 
@@ -118,7 +118,7 @@ client.on('interactionCreate', async interaction => {
 **اللفل المطلوب : 80**
 
 **الخواص : رتبه خاصه**', ephemeral: true });
-        if (id === 'map_premium') return await interaction.reply({ content: '// > `الرتب المميزه`
+        if (id === 'map_premium') return await interaction.reply({ content: '// > **الرتب المميزه**
 
 
 
@@ -149,7 +149,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-// > `رومات السيرفر :`
+// > **رومات السيرفر :**
 
 
 
@@ -173,7 +173,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-// > `شاتات السيرفر :`
+// > **شاتات السيرفر :**
 
 
 
@@ -207,7 +207,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-// > `أقسام السيرفر :`
+// > **أقسام السيرفر :**
 
 
 

@@ -9,7 +9,7 @@ const client = new Client({
 const CONFIG = {
     adminRole: "1519051140833218751",
     logChannel: "1518876917527482398",
-    categoryID: "<#1518876917527482398>", // <-- ضعي ID القسم الذي ستنزل فيه التكتات هنا
+    categoryID: "ضع_ID_القسم_هنا", 
     thumb: './IMG_7025.jpeg',
     mainImg: './IMG_5240.jpeg'
 };
@@ -24,31 +24,46 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
+    // 1. عند الضغط على أزرار التكت: نفتح النموذج أولاً
+    if (interaction.isButton() && ['t_support', 't_complaint', 't_role', 't_creator'].includes(interaction.customId)) {
+        const modal = new ModalBuilder().setCustomId('modal_ticket_data').setTitle('بيانات التذكرة');
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('t_reason').setLabel('سبب فتح التذكرة').setStyle(TextInputStyle.Short).setRequired(true)),
+            new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('t_desc').setLabel('شرح التفاصيل').setStyle(TextInputStyle.Paragraph).setRequired(true))
+        );
+        return await interaction.showModal(modal);
+    }
+
+    // 2. معالجة بيانات النموذج وإنشاء التكت
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_ticket_data') {
+        await interaction.deferReply({ ephemeral: true });
+        const reason = interaction.fields.getTextInputValue('t_reason');
+        const desc = interaction.fields.getTextInputValue('t_desc');
+
+        const channel = await interaction.guild.channels.create({
+            name: `ticket-${interaction.user.username}`,
+            type: ChannelType.GuildText,
+            parent: CONFIG.categoryID,
+            permissionOverwrites: [
+                { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles] },
+                { id: CONFIG.adminRole, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] }
+            ]
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle("تذكرة جديدة")
+            .setDescription(`**صاحب التذكرة:** ${interaction.user}\n**السبب:** ${reason}\n**الشرح:** ${desc}`)
+            .setColor(CONFIG.color);
+
+        await channel.send({ content: `${interaction.user}، تم فتح التذكرة. **الآن يرجى إرفاق الصورة المطلوبة هنا في الشات.**`, embeds: [embed] });
+        await channel.send({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success))] });
+        await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
+    }
+
+    // 3. باقي المعالجات (استلام، غلق، خريطة)
     if (interaction.isButton()) {
         const id = interaction.customId;
-
-        // إنشاء التكت الحقيقي عند الضغط
-        if (['t_support', 't_complaint', 't_role', 't_creator'].includes(id)) {
-            await interaction.deferReply({ ephemeral: true });
-            
-            const channel = await interaction.guild.channels.create({
-                name: `ticket-${interaction.user.username}`,
-                type: ChannelType.GuildText,
-                parent: CONFIG.categoryID,
-                permissionOverwrites: [
-                    { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
-                    { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] },
-                    { id: CONFIG.adminRole, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] }
-                ]
-            });
-
-            const row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success)
-            );
-            await channel.send({ content: `مرحباً ${interaction.user}، تم فتح التذكرة لقسم: ${interaction.component.label}. بانتظار الإدارة.`, components: [row] });
-            await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
-        }
-        
         if (id === 'btn_claim') {
             db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
             saveDb();
@@ -56,13 +71,11 @@ client.on('interactionCreate', async interaction => {
             const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_close').setLabel('غلق التكت').setStyle(ButtonStyle.Danger));
             await interaction.message.edit({ components: [row] });
         }
-        
         if (id === 'btn_close') {
             const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
             modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
             return await interaction.showModal(modal);
         }
-
         if (id === 'map_roles') await interaction.reply({ content: `**شرح الرتب...**`, ephemeral: true });
         if (id === 'map_premium') await interaction.reply({ content: `**الرتب المميزة...**`, ephemeral: true });
         if (id === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
@@ -72,10 +85,8 @@ client.on('interactionCreate', async interaction => {
         const reason = interaction.fields.getTextInputValue('c_reason');
         const logChannel = interaction.guild.channels.cache.get(CONFIG.logChannel);
         if (logChannel) logChannel.send({ content: `**أرشفة تذكرة:**\n**بواسطة الإداري:** ${interaction.user}\n**السبب:** ${reason}`, files: [CONFIG.thumb] });
-        
         const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
         if (member) member.send({ content: `تم غلق تذكرتك في سيرفر رواف. السبب: ${reason}`, files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
-        
         await interaction.reply('جاري غلق التكت...');
         setTimeout(() => interaction.channel.delete(), 2000);
     }

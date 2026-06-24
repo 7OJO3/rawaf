@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 
 const client = new Client({
@@ -9,7 +9,7 @@ const client = new Client({
 const CONFIG = {
     adminRole: "1519051140833218751",
     logChannel: "1518876917527482398",
-    color: 0x4B0082,
+    categoryID: "ضع_ID_القسم_هنا", // <-- ضعي ID القسم الذي ستنزل فيه التكتات هنا
     thumb: './IMG_7025.jpeg',
     mainImg: './IMG_5240.jpeg'
 };
@@ -27,12 +27,28 @@ client.on('interactionCreate', async interaction => {
     if (interaction.isButton()) {
         const id = interaction.customId;
 
-        // معالجة أزرار التكت الأربعة
+        // إنشاء التكت الحقيقي عند الضغط
         if (['t_support', 't_complaint', 't_role', 't_creator'].includes(id)) {
-            await interaction.reply({ content: `✅ جاري فتح تذكرتك (قسم: ${interaction.component.label})...`, ephemeral: true });
+            await interaction.deferReply({ ephemeral: true });
+            
+            const channel = await interaction.guild.channels.create({
+                name: `ticket-${interaction.user.username}`,
+                type: ChannelType.GuildText,
+                parent: CONFIG.categoryID,
+                permissionOverwrites: [
+                    { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                    { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] },
+                    { id: CONFIG.adminRole, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] }
+                ]
+            });
+
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success)
+            );
+            await channel.send({ content: `مرحباً ${interaction.user}، تم فتح التذكرة لقسم: ${interaction.component.label}. بانتظار الإدارة.`, components: [row] });
+            await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
         }
         
-        // معالجة زر الاستلام
         if (id === 'btn_claim') {
             db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
             saveDb();
@@ -41,14 +57,12 @@ client.on('interactionCreate', async interaction => {
             await interaction.message.edit({ components: [row] });
         }
         
-        // معالجة زر الغلق
         if (id === 'btn_close') {
             const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
             modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
             return await interaction.showModal(modal);
         }
 
-        // أزرار الخريطة
         if (id === 'map_roles') await interaction.reply({ content: `**شرح الرتب...**`, ephemeral: true });
         if (id === 'map_premium') await interaction.reply({ content: `**الرتب المميزة...**`, ephemeral: true });
         if (id === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
@@ -63,7 +77,7 @@ client.on('interactionCreate', async interaction => {
         if (member) member.send({ content: `تم غلق تذكرتك في سيرفر رواف. السبب: ${reason}`, files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
         
         await interaction.reply('جاري غلق التكت...');
-        await interaction.channel.delete();
+        setTimeout(() => interaction.channel.delete(), 2000);
     }
 });
 

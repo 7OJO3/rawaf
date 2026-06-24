@@ -16,4 +16,4 @@ client.on('messageCreate', async message => {
         await message.channel.send({ embeds: [embed], components: [row] });
     }
 });
-module.exports = { / / };
+module.exports = {};

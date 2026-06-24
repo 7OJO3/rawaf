@@ -24,24 +24,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
 
     if (interaction.customId === 'map_roles') {
-        await interaction.reply({ content: "**السلام عليكم؛**\nشرح بسيط للرتب، للإستفسار تواصل مع الاداره\n> `رتب التفاعل`\n<@&1519046388430803065> اللفل المطلوب : 5\n<@&1519046968469491752> اللفل المطلوب : 10\n<@&1519047263626727647> اللفل المطلوب : 15\n<@&1519047654116425758> اللفل المطلوب : 25\n<@&1519047973965795540> اللفل المطلوب : 35\n<@&1519048167188861018> اللفل المطلوب : 60\n<@&1519048390187548722> اللفل المطلوب : 80", ephemeral: true });
-    }
-    if (interaction.customId === 'map_premium') {
-        await interaction.reply({ content: "> `الرتب المميزه`\n<@&1519048728755830785> يوتيوبر - قناتك فوق الالف\n<@&1519048847559622769> تيكتوكر - حسابك فوق 10k\n<@&1519049800287518780> فانز 1k+\n<@&1519049858047152279> فانز 10k+\n<@&1519049752157749418> كخاوي\n<@&1519049595244515418> رسام", ephemeral: true });
-    }
-    if (interaction.customId === 'map_rooms') {
-        await interaction.reply({ content: "**اهلاً وسهلا بك في دليل السيرفر**\n(تم وضع شرح الرومات هنا...)", ephemeral: true });
-    }
-});
-
-client.on('messageCreate', async message => {
-    if (!message.content.startsWith('!')) return;
-    const args = message.content.slice(1).split(/ +/);
-    const cmd = args.shift().toLowerCase();
-
-    if (cmd === 'خريطة') {
-        const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('map_roles').setLabel('**السلام عليكم؛**
+        await interaction.reply({ content: "**السلام عليكم؛**
 
 شرح بسيط للرتب، لللإستفسار تواصل مع الاداره
 
@@ -89,9 +72,10 @@ client.on('messageCreate', async message => {
 
 **اللفل المطلوب : 80**
 
-**الخواص : رتبه خاصه**').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('map_accounts').setLabel('الحسابات الرسمية').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('map_premium').setLabel('> `الرتب المميزه`
+**الخواص : رتبه خاصه**, ephemeral: true });
+    }
+    if (interaction.customId === 'map_premium') {
+        await interaction.reply({ content: "> `الرتب المميزه`
 
 
 
@@ -117,8 +101,10 @@ client.on('messageCreate', async message => {
 
 <@&1519049595244515418> رسام<a:emoji_4:1519150693858938930> 
 
-**الي عندهم حس فني**').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('map_rooms').setLabel('**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
+**الي عندهم حس فني**", ephemeral: true });
+    }
+    if (interaction.customId === 'map_rooms') {
+        await interaction.reply({ content: "**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
 
 
 
@@ -230,7 +216,21 @@ client.on('messageCreate', async message => {
 
 <#1518858567896010913> بلوكس فروت 
 
-<#1518858829759250433> بيت سلمنيتر').setStyle(ButtonStyle.Secondary)
+<#1518858829759250433> بيت سلمنيتر", ephemeral: true });
+    }
+});
+
+client.on('messageCreate', async message => {
+    if (!message.content.startsWith('!')) return;
+    const args = message.content.slice(1).split(/ +/);
+    const cmd = args.shift().toLowerCase();
+
+    if (cmd === 'خريطة') {
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب التفاعل').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_accounts').setLabel('الحسابات الرسمية').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_premium').setLabel('الرتب المميزه').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح الرومات').setStyle(ButtonStyle.Secondary)
         );
         const embed = new EmbedBuilder()
             .setTitle("مرحباً بك في سيرفر رواف")

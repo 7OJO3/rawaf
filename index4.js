@@ -309,7 +309,7 @@ client.on('messageCreate', async message => {
     if (cmd === 'تكت') {
         const row1 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary));
         const row2 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_role').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary));
-        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("مرحبا بك في قسم الدعم الفني").setDescription("اذا كنت تواجه مشكلة,تحتاج الى مساعدهواو ترغب بتقديم بلاغ, يمكنك فتح تذكره وسيتولى فريقنا مساعدتك.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row1, row2] });
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("مرحبا بك في قسم الدعم الفني").setDescription("اذا كنت تواجه مشكلة,تحتاج الى مساعده,او ترغب بتقديم بلاغ, يمكنك فتح تذكره وسيتولى فريقنا مساعدتك.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row1, row2] });
     }
     if (cmd === 'خريطة') {
         const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary));

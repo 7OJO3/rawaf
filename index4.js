@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
 **الخواص : رتبه خاصه**`, ephemeral: true });
     }
     if (interaction.customId === 'map_premium') {
-        await interaction.reply({ content: "> `الرتب المميزه
+        await interaction.reply({ content: `الرتب المميزه
 
 
 

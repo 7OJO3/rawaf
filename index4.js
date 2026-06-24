@@ -7,29 +7,17 @@ const client = new Client({
 });
 
 // تعريف قاعدة البيانات البسيطة
-const db = { points: {} };
+// تعريف قاعدة البيانات الموحدة
+let db = { points: {}, staffPoints: {}, warnings: {} };
+if (fs.existsSync('./tickets_data.json')) {
+    db = JSON.parse(fs.readFileSync('./tickets_data.json'));
+}
 
-// تصدير الأدوات للملفات الأخرى
+function saveDb() { 
+    fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); 
+}
+
 module.exports = { client, db };
-
-// ربط الملفات (بعد تعريف الـ client)
-require('./mafia.js');
-require('./roulette.js');
-require('./leaderboard.js');
-
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-});
-
-const CONFIG = {
-    adminRole: "1519051140833218751",
-    logChannel: "1518876917527482398",
-    categoryID: "1518850112078483577", 
-    thumb: './IMG_7025.jpeg',
-    mainImg: './IMG_5240.jpeg'
-};
-
-let db = { staffPoints: {}, warnings: {} };
 if (fs.existsSync('./tickets_data.json')) db = JSON.parse(fs.readFileSync('./tickets_data.json'));
 function saveDb() { fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); }
 

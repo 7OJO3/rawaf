@@ -24,7 +24,7 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-    // 1. عند الضغط على أزرار التكت: نفتح النموذج
+    // 1. فتح التكت
     if (interaction.isButton() && ['t_support', 't_complaint', 't_role', 't_creator'].includes(interaction.customId)) {
         const modal = new ModalBuilder().setCustomId('modal_ticket_data').setTitle('بيانات التذكرة');
         modal.addComponents(
@@ -34,7 +34,7 @@ client.on('interactionCreate', async interaction => {
         return await interaction.showModal(modal);
     }
 
-    // 2. معالجة بيانات النموذج وإنشاء التكت
+    // 2. معالجة فتح التكت + رسالة الخاص
     if (interaction.isModalSubmit() && interaction.customId === 'modal_ticket_data') {
         await interaction.deferReply({ ephemeral: true });
         const reason = interaction.fields.getTextInputValue('t_reason');
@@ -46,22 +46,31 @@ client.on('interactionCreate', async interaction => {
             parent: CONFIG.categoryID,
             permissionOverwrites: [
                 { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
-                { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles] },
+                { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] },
                 { id: CONFIG.adminRole, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages] }
             ]
         });
 
-        const embed = new EmbedBuilder()
+        const embedInChannel = new EmbedBuilder()
             .setTitle("تذكرة جديدة")
             .setDescription(`**صاحب التذكرة:** ${interaction.user}\n**السبب:** ${reason}\n**الشرح:** ${desc}`)
             .setColor(4915330);
 
-        await channel.send({ content: `<@&1519051140833218751>، ${interaction.user} الرجاء انتظار احد الاداريين لاستلام التكت.`, embeds: [embed] });
+        await channel.send({ content: `<@&${CONFIG.adminRole}>، ${interaction.user} فتح تذكرة جديدة.`, embeds: [embedInChannel] });
         await channel.send({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success))] });
+
+        const embedDM = new EmbedBuilder()
+            .setTitle("تم فتح تذكرتك")
+            .setDescription(`مرحباً ${interaction.user}، تم فتح تذكرتك بنجاح.\nيرجى التوجه إلى الروم: ${channel}`)
+            .setThumbnail("attachment://IMG_7025.jpeg")
+            .setImage("attachment://IMG_5240.jpeg")
+            .setColor(4915330);
+        
+        interaction.user.send({ embeds: [embedDM], files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
         await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
     }
 
-    // 3. باقي المعالجات (استلام، غلق، خريطة)
+    // 3. الأزرار (استلام / غلق)
     if (interaction.isButton()) {
         const id = interaction.customId;
         if (id === 'btn_claim') {
@@ -76,27 +85,28 @@ client.on('interactionCreate', async interaction => {
             modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
             return await interaction.showModal(modal);
         }
-        if (id === 'map_roles') await interaction.reply({ content: `**شرح الرتب...**`, ephemeral: true });
-        if (id === 'map_premium') await interaction.reply({ content: `**الرتب المميزة...**`, ephemeral: true });
-        if (id === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
     }
 
-    // 4. أرشفة التكت في الروم (Embed فقط)
+    // 4. أرشفة التكت + رسالة الإغلاق بالخاص
     if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {
         const reason = interaction.fields.getTextInputValue('c_reason');
         const logChannel = interaction.guild.channels.cache.get(CONFIG.logChannel);
         
         if (logChannel) {
-            const logEmbed = new EmbedBuilder()
-                .setTitle("أرشفة تذكرة")
-                .setColor(4915330)
-                .addFields(
-                    { name: "رقم التذكرة", value: interaction.channel.id, inline: true },
-                    { name: "صاحب التذكرة", value: interaction.channel.name.replace('ticket-', ''), inline: true },
-                    { name: "سبب الغلق", value: reason, inline: false }
-                )
-                .setTimestamp();
+            const logEmbed = new EmbedBuilder().setTitle("أرشفة تذكرة").setColor(4915330)
+                .addFields({ name: "رقم التذكرة", value: interaction.channel.id, inline: true }, { name: "صاحب التذكرة", value: interaction.channel.name.replace('ticket-', ''), inline: true }, { name: "سبب الغلق", value: reason, inline: false });
             logChannel.send({ embeds: [logEmbed] });
+        }
+        
+        const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
+        if (member) {
+            const closeEmbed = new EmbedBuilder()
+                .setTitle("تم إغلاق تذكرتك")
+                .setDescription(`تم إغلاق التذكرة بواسطة الإداري: ${interaction.user}\n**السبب:** ${reason}`)
+                .setThumbnail("attachment://IMG_7025.jpeg")
+                .setImage("attachment://IMG_5240.jpeg")
+                .setColor(4915330);
+            member.send({ embeds: [closeEmbed], files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
         }
         
         await interaction.reply('جاري غلق التكت...');
@@ -108,41 +118,17 @@ client.on('messageCreate', async message => {
     if (!message.content.startsWith('!')) return;
     const args = message.content.slice(1).split(/ +/);
     const cmd = args.shift().toLowerCase();
-
+    
     if (cmd === 'تكت') {
-        const row1 = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary)
-        );
-        const row2 = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('t_role').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary)
-        );
-        await message.channel.send({ 
-            embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], 
-            files: [CONFIG.thumb, CONFIG.mainImg], 
-            components: [row1, row2] 
-        });
+        const row1 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary));
+        const row2 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_role').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary));
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row1, row2] });
     }
-
     if (cmd === 'خريطة') {
-        const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary)
-        );
-        await message.channel.send({ 
-            embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], 
-            files: [CONFIG.thumb, CONFIG.mainImg], 
-            components: [row] 
-        });
+        const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary));
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row] });
     }
-
-    if (cmd === 'تكتات') {
-        const member = message.mentions.members.first();
-        if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`);
-    }
-
+    if (cmd === 'تكتات') { const member = message.mentions.members.first(); if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`); }
     if (!message.member.roles.cache.has(CONFIG.adminRole)) return;
     if (cmd === 'طرد') { const m = message.mentions.members.first(); if (m) m.kick(); }
     if (cmd === 'قفل') { message.channel.permissionOverwrites.edit(message.guild.id, { SendMessages: false }); }

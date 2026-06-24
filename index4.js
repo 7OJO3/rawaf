@@ -70,9 +70,16 @@ client.on('interactionCreate', async interaction => {
         await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
     }
 
-    // 3. الأزرار (استلام / غلق)
+    // 3. معالجة الأزرار (استلام، غلق، وأزرار الخريطة)
     if (interaction.isButton()) {
         const id = interaction.customId;
+
+        // معالجة أزرار الخريطة
+        if (id === 'map_roles') return await interaction.reply({ content: `**شرح الرتب:**\n(أضيفي هنا شرح الرتب الخاص بك)`, ephemeral: true });
+        if (id === 'map_premium') return await interaction.reply({ content: `**الرتب المميزة:**\n(أضيفي هنا تفاصيل الرتب المميزة)`, ephemeral: true });
+        if (id === 'map_rooms') return await interaction.reply({ content: `**دليل الرومات:**\n(أضيفي هنا دليل الرومات)`, ephemeral: true });
+
+        // معالجة أزرار التكت
         if (id === 'btn_claim') {
             db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
             saveDb();
@@ -128,6 +135,7 @@ client.on('messageCreate', async message => {
         const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary));
         await message.channel.send({ embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row] });
     }
+    // ... باقي الأوامر (تكتات، طرد، قفل، فتح)
     if (cmd === 'تكتات') { const member = message.mentions.members.first(); if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`); }
     if (!message.member.roles.cache.has(CONFIG.adminRole)) return;
     if (cmd === 'طرد') { const m = message.mentions.members.first(); if (m) m.kick(); }

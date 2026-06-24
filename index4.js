@@ -27,9 +27,9 @@ client.on('interactionCreate', async interaction => {
     if (interaction.isButton()) {
         const id = interaction.customId;
 
-        // معالجة أزرار التكت
-        if (id === 't_support' || id === 't_complaint') {
-            await interaction.reply({ content: `✅ جاري فتح تذكرتك (${id === 't_support' ? 'دعم فني' : 'شكوى'})...`, ephemeral: true });
+        // معالجة أزرار التكت الأربعة
+        if (['t_support', 't_complaint', 't_role', 't_creator'].includes(id)) {
+            await interaction.reply({ content: `✅ جاري فتح تذكرتك (قسم: ${interaction.component.label})...`, ephemeral: true });
         }
         
         // معالجة زر الاستلام
@@ -73,14 +73,18 @@ client.on('messageCreate', async message => {
     const cmd = args.shift().toLowerCase();
 
     if (cmd === 'تكت') {
-        const row = new ActionRowBuilder().addComponents(
+        const row1 = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary),
             new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary)
         );
+        const row2 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('t_role').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary)
+        );
         await message.channel.send({ 
-            embeds: [new EmbedBuilder().setTitle("نظام تذاكر").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], 
+            embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], 
             files: [CONFIG.thumb, CONFIG.mainImg], 
-            components: [row] 
+            components: [row1, row2] 
         });
     }
 

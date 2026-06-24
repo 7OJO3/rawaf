@@ -1,5 +1,6 @@
-const { client } = require('./index4.js'); // ربط البوت
+const { client, db } = require('./index4.js');
 const cron = require('node-cron');
+const { EmbedBuilder } = require('discord.js');
 
 // كود التحديث الأسبوعي
 cron.schedule('0 0 * * 0', async () => {

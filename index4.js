@@ -24,7 +24,7 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-    // 1. عند الضغط على أزرار التكت: نفتح النموذج أولاً
+    // 1. عند الضغط على أزرار التكت: نفتح النموذج
     if (interaction.isButton() && ['t_support', 't_complaint', 't_role', 't_creator'].includes(interaction.customId)) {
         const modal = new ModalBuilder().setCustomId('modal_ticket_data').setTitle('بيانات التذكرة');
         modal.addComponents(
@@ -56,7 +56,7 @@ client.on('interactionCreate', async interaction => {
             .setDescription(`**صاحب التذكرة:** ${interaction.user}\n**السبب:** ${reason}\n**الشرح:** ${desc}`)
             .setColor(4915330);
 
-        await channel.send({ content: `${interaction.user}، تم فتح التذكرة. **الآن يرجى إرفاق الصورة المطلوبة هنا في الشات.**`, embeds: [embed] });
+        await channel.send({ content: `${interaction.user}، تم فتح التذكرة. بانتظار الإدارة.`, embeds: [embed] });
         await channel.send({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success))] });
         await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
     }
@@ -81,12 +81,24 @@ client.on('interactionCreate', async interaction => {
         if (id === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
     }
 
+    // 4. أرشفة التكت في الروم (Embed فقط)
     if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {
         const reason = interaction.fields.getTextInputValue('c_reason');
         const logChannel = interaction.guild.channels.cache.get(CONFIG.logChannel);
-        if (logChannel) logChannel.send({ content: `**أرشفة تذكرة:**\n**بواسطة الإداري:** ${interaction.user}\n**السبب:** ${reason}`, files: [CONFIG.thumb] });
-        const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
-        if (member) member.send({ content: `تم غلق تذكرتك في سيرفر رواف. السبب: ${reason}`, files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
+        
+        if (logChannel) {
+            const logEmbed = new EmbedBuilder()
+                .setTitle("أرشفة تذكرة")
+                .setColor(4915330)
+                .addFields(
+                    { name: "رقم التذكرة", value: interaction.channel.id, inline: true },
+                    { name: "صاحب التذكرة", value: interaction.channel.name.replace('ticket-', ''), inline: true },
+                    { name: "سبب الغلق", value: reason, inline: false }
+                )
+                .setTimestamp();
+            logChannel.send({ embeds: [logEmbed] });
+        }
+        
         await interaction.reply('جاري غلق التكت...');
         setTimeout(() => interaction.channel.delete(), 2000);
     }

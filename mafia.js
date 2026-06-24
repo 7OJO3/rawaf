@@ -1,9 +1,10 @@
-const { client, db } = require('./index4.js');client.on('messageCreate', async message => {
-    // أمر بدء لعبة المافيا
-   client.on('messageCreate', async message => {
+const { client, db } = require('./index4.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+client.on('messageCreate', async message => {
     if (message.content.startsWith('!مافيا')) {
-        // هنا كود المافيا الخاص بكِ
-        message.reply("بدأت لعبة المافيا! اضغطوا على الزر للانضمام...")
+        
+        const embed = new EmbedBuilder()
             .setTitle("🎮 لعبة المافيا - سيرفر رواف")
             .setDescription("اضغط على زر **انضمام** للمشاركة. \n\n⚠️ **تنبيه:** تأكد أن خاصك (DM) مفتوح، وإلا لن تستطيع استلام دورك!")
             .setColor(0x2f3136);
@@ -17,4 +18,3 @@ const { client, db } = require('./index4.js');client.on('messageCreate', async m
         await message.channel.send({ embeds: [embed], components: [row] });
     }
 });
-module.exports = {};

@@ -236,8 +236,8 @@ client.on('messageCreate', async message => {
             .setTitle("مرحباً بك في سيرفر رواف")
             .setDescription("هنا تجد دليلك لكل شيء")
             .setColor(CONFIG.color)
-            .setThumbnail("attachment://IMG_7023.jpg");
-            .setImage("attachment://IMG_5240.jpeg")
+            .setThumbnail("attachment://IMG_7023.jpg")
+            .setImage("attachment://IMG_5240.jpeg");
         
         await message.channel.send({ embeds: [embed], components: [row], files: ['./IMG_7023.jpg'] });
     }

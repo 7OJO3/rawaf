@@ -33,19 +33,34 @@ client.on('interactionCreate', async interaction => {
         if (interaction.customId === 'map_rooms') {
             await interaction.reply({ content: `**دليل السيرفر...**`, ephemeral: true });
         }
-        if (interaction.customId.startsWith('t_')) {
-            const modal = new ModalBuilder().setCustomId('modal_ticket').setTitle('تفاصيل التذكرة');
-            modal.addComponents(
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reason').setLabel('ما هي مشكلتك؟').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('desc').setLabel('وصف الحالة').setStyle(TextInputStyle.Paragraph).setRequired(true))
-            );
-            return await interaction.showModal(modal);
-        }
+       const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder } = require('discord.js');
+const fs = require('fs');
+
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
+    partials: [Partials.Channel, Partials.Message]
+});
+
+const CONFIG = {
+    adminRole: "1519051140833218751",
+    logChannel: "1518876917527482398",
+    color: 0x4B0082,
+    thumb: './IMG_7025.jpeg', // تأكدي من اسم الملف
+    mainImg: './IMG_5240.jpeg' // تأكدي من اسم الملف
+};
+
+let db = { staffPoints: {} };
+if (fs.existsSync('./tickets_data.json')) db = JSON.parse(fs.readFileSync('./tickets_data.json'));
+function saveDb() { fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); }
+
+client.on('interactionCreate', async interaction => {
+    if (interaction.isButton()) {
         if (interaction.customId === 'btn_claim') {
             db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
             saveDb();
-            await interaction.reply(`تم استلام التكت بواسطة ${interaction.user.username}`);
-            interaction.message.edit({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_close').setLabel('غلق التكت').setStyle(ButtonStyle.Danger))] });
+            await interaction.reply(`✅ **تم استلام التكت بواسطة: ${interaction.user}**`);
+            const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_close').setLabel('غلق التكت').setStyle(ButtonStyle.Danger));
+            await interaction.message.edit({ components: [row] });
         }
         if (interaction.customId === 'btn_close') {
             const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
@@ -53,24 +68,29 @@ client.on('interactionCreate', async interaction => {
             return await interaction.showModal(modal);
         }
     }
-    if (interaction.isModalSubmit() && interaction.customId === 'modal_ticket') {
-        const reason = interaction.fields.getTextInputValue('reason');
-        const desc = interaction.fields.getTextInputValue('desc');
-        const channel = await interaction.guild.channels.create({
-            name: `ticket-${interaction.user.username}`,
-            type: ChannelType.GuildText,
-            permissionOverwrites: [{ id: interaction.guild.id, deny: ['ViewChannel'] }, { id: interaction.user.id, allow: ['ViewChannel', 'SendMessages'] }, { id: CONFIG.adminRole, allow: ['ViewChannel', 'SendMessages'] }]
-        });
-        const embed = new EmbedBuilder().setTitle("تذكرة جديدة").setDescription(`**السبب:** ${reason}\n**الوصف:** ${desc}`).setColor(CONFIG.color);
-        const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام').setStyle(ButtonStyle.Success));
-        await channel.send({ content: `<@&${CONFIG.adminRole}>`, embeds: [embed], components: [row] });
-        await interaction.reply({ content: `تم فتح التذكرة: ${channel}`, ephemeral: true });
-    }
+
     if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {
         const reason = interaction.fields.getTextInputValue('c_reason');
-        const log = interaction.guild.channels.cache.get(CONFIG.logChannel);
-        if (log) log.send(`**إغلاق تذكرة:**\nالسبب: ${reason}\nبواسطة: ${interaction.user.username}`);
-        await interaction.reply('جاري الحذف...');
+        const logChannel = interaction.guild.channels.cache.get(CONFIG.logChannel);
+        
+        // رسالة للأرشيف
+        if (logChannel) {
+            logChannel.send({
+                content: `**أرشفة تذكرة:**\n**بواسطة الإداري:** ${interaction.user}\n**السبب:** ${reason}`,
+                files: [CONFIG.thumb]
+            });
+        }
+        
+        // رسالة للخاص للعضو
+        const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
+        if (member) {
+            member.send({
+                content: `تم غلق تذكرتك في سيرفر رواف. السبب: ${reason}`,
+                files: [CONFIG.thumb, CONFIG.mainImg]
+            }).catch(() => {});
+        }
+        
+        await interaction.reply('جاري غلق التكت...');
         await interaction.channel.delete();
     }
 });
@@ -83,21 +103,28 @@ client.on('messageCreate', async message => {
     if (cmd === 'تكت') {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('t_rank').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary)
+            new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary)
         );
-        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setColor(CONFIG.color)], components: [row] });
+        await message.channel.send({ 
+            embeds: [new EmbedBuilder().setTitle("نظام تذاكر").setImage("attachment://IMG_5240.jpeg")], 
+            files: [CONFIG.mainImg], components: [row] 
+        });
     }
+
     if (cmd === 'تكتات') {
         const member = message.mentions.members.first();
-        if (member) message.reply(`الإداري ${member.displayName} لديه **${db.staffPoints[member.id] || 0}** تكت.`);
+        if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`);
+    }
+});
+    
     }
     if (cmd === 'خريطة') {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary)
+            .setThumbnail(CONFIG.IMG_7025.jpeg)
+            .setImage(CONFIG.IMG_5240.jpeg);
         );
         await message.channel.send({ embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setColor(CONFIG.color)], components: [row] });
     }

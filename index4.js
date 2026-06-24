@@ -285,18 +285,22 @@ client.on('interactionCreate', async interaction => {
             logChannel.send({ embeds: [logEmbed] });
         }
         
+        // [رسالة الإغلاق المحدثة]
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {
+        const reason = interaction.fields.getTextInputValue('c_reason');
         const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
+        
         if (member) {
-            const closeEmbed = new EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setTitle("تم إغلاق تذكرتك")
                 .setDescription(`تم إغلاق التذكرة بواسطة الإداري: ${interaction.user}\n**السبب:** ${reason}`)
                 .setThumbnail("attachment://IMG_7025.jpeg")
                 .setImage("attachment://IMG_5240.jpeg")
-                .setColor(4915330);
-            member.send({ embeds: [closeEmbed], files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
+                .setColor(0xFF0000);
+            // إرسال الرسالة مع الصور
+            member.send({ embeds: [embed], files: [CONFIG.thumb, CONFIG.mainImg] }).catch(() => {});
         }
-        
-        await interaction.reply('جاري غلق التكت...');
+        await interaction.reply('جاري إغلاق التذكرة...');
         setTimeout(() => interaction.channel.delete(), 2000);
     }
 });
@@ -317,10 +321,49 @@ client.on('messageCreate', async message => {
     }
     // ... باقي الأوامر (تكتات، طرد، قفل، فتح)
     if (cmd === 'تكتات') { const member = message.mentions.members.first(); if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`); }
-    if (!message.member.roles.cache.has(CONFIG.adminRole)) return;
-    if (cmd === 'طرد') { const m = message.mentions.members.first(); if (m) m.kick(); }
-    if (cmd === 'قفل') { message.channel.permissionOverwrites.edit(message.guild.id, { SendMessages: false }); }
-    if (cmd === 'فتح') { message.channel.permissionOverwrites.edit(message.guild.id, { SendMessages: true }); }
+    // [الأوامر الإدارية الجديدة]
+    if (cmd === 'مسح') {
+        const amount = parseInt(args[0]) || 10;
+        message.channel.bulkDelete(amount).then(() => message.reply(`✅ تم مسح ${amount} رسالة`));
+    }
+    if (cmd === 'تايم_اوت') {
+        const member = message.mentions.members.first();
+        const time = parseInt(args[0]) * 60 * 1000;
+        if (member && time) { member.timeout(time); message.reply(`✅ تم إسكات ${member.user.tag}`); }
+    }
+    if (cmd === 'رتبة') {
+        const member = message.mentions.members.first();
+        const role = message.mentions.roles.first();
+        if (member && role) { member.roles.add(role); message.reply('✅ تمت إضافة الرتبة'); }
+    }
+    if (cmd === 'سحب_رتبة') {
+        const member = message.mentions.members.first();
+        const role = message.mentions.roles.first();
+        if (member && role) { member.roles.remove(role); message.reply('✅ تمت إزالة الرتبة'); }
+    }
+    if (cmd === 'تحذير') {
+        const member = message.mentions.members.first();
+        if (!member) return;
+        db.warnings[member.id] = (db.warnings[member.id] || 0) + 1;
+        saveDb();
+        message.reply(`⚠️ تم تحذير ${member.user.tag}. (عدد تحذيراته: ${db.warnings[member.id]})`);
+    }
+    if (cmd === 'تحذيرات') {
+        const member = message.mentions.members.first() || message.member;
+        message.reply(`العضو ${member.user.tag} لديه ${db.warnings[member.id] || 0} تحذير.`);
+    }
+    if (cmd === 'شيل_تحذير') {
+        const member = message.mentions.members.first();
+        if (member) { db.warnings[member.id] = 0; saveDb(); message.reply('✅ تم تصفير تحذيرات العضو'); }
+    }
+    if (cmd === 'بند') {
+        const member = message.mentions.members.first();
+        if (member) { member.ban(); message.reply('✅ تم حظر العضو'); }
+    }
+    if (cmd === 'فك_بند') {
+        const userId = args[0];
+        message.guild.members.unban(userId).then(() => message.reply('✅ تم فك الحظر'));
+    }
 });
 
 client.login(process.env.TOKEN);

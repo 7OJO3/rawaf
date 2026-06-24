@@ -6,24 +6,39 @@ const client = new Client({
     partials: [Partials.Channel, Partials.Message]
 });
 
-// تعريف قاعدة البيانات البسيطة
-// تعريف قاعدة البيانات الموحدة
+// إعدادات البوت (أضيفي الـ IDs الخاصة بك هنا)
+const CONFIG = {
+    adminRole: "1519051140833218751",
+    logChannel: "1518876917527482398",
+    categoryID: "1518850112078483577", 
+    thumb: './IMG_7025.jpeg',
+    mainImg: './IMG_5240.jpeg'
+};
+
+// تعريف قاعدة البيانات
 let db = { points: {}, staffPoints: {}, warnings: {} };
 if (fs.existsSync('./tickets_data.json')) {
     db = JSON.parse(fs.readFileSync('./tickets_data.json'));
 }
-
-function saveDb() { 
-    fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); 
-}
-
-module.exports = { client, db };
-if (fs.existsSync('./tickets_data.json')) db = JSON.parse(fs.readFileSync('./tickets_data.json'));
 function saveDb() { fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); }
 
+// تصدير الأدوات للملفات الأخرى
+module.exports = { client, db, saveDb };
+
+// تشغيل البوت
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     client.user.setActivity('RAWAF SA BOT', { type: ActivityType.Streaming, url: 'https://www.twitch.tv/rawaf' });
+});
+
+// ربط الملفات الأخرى (تأكدي أن هذه الملفات موجودة في نفس المجلد)
+require('./mafia.js');
+require('./roulette.js');
+require('./leaderboard.js');
+
+// [هنا تضعين كود الـ interactionCreate والـ messageCreate الخاص بك كما هو]
+// (ملاحظة: تأكدي أن CONFIG معرف هنا أيضاً أو استخدمي module.exports)
+
 });
 
 client.on('interactionCreate', async interaction => {

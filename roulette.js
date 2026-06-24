@@ -25,4 +25,4 @@ client.on('messageCreate', async message => {
         }
     }
 });
-module.exports = { / / };
+module.exports = {};

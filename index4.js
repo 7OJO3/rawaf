@@ -9,7 +9,7 @@ const client = new Client({
 const CONFIG = {
     adminRole: "1519051140833218751",
     logChannel: "1518876917527482398",
-    categoryID: "ضع_ID_القسم_هنا", 
+    categoryID: "1518850112078483577", 
     thumb: './IMG_7025.jpeg',
     mainImg: './IMG_5240.jpeg'
 };

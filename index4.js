@@ -30,7 +30,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-> `رتب التفاعل`
+> رتب التفاعل
 
 <@&1519046388430803065> 
 
@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
 **الخواص : رتبه خاصه**`, ephemeral: true });
     }
     if (interaction.customId === 'map_premium') {
-        await interaction.reply({ content: "> `الرتب المميزه`
+        await interaction.reply({ content: "> `الرتب المميزه
 
 
 
@@ -108,7 +108,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-> `رومات السيرفر :`
+> رومات السيرفر :
 
 
 
@@ -132,7 +132,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-> `شاتات السيرفر :`
+> شاتات السيرفر :
 
 
 
@@ -166,7 +166,7 @@ client.on('interactionCreate', async interaction => {
 
 
 
-> `أقسام السيرفر :`
+> أقسام السيرفر :
 
 
 

@@ -123,8 +123,8 @@ client.on('messageCreate', async message => {
             new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary)
-            .setThumbnail(CONFIG.IMG_7025.jpeg)
-            .setImage(CONFIG.IMG_5240.jpeg);
+            thumb: './IMG_7025.jpeg', // تأكدي من اسم الملف
+            mainImg: './IMG_5240.jpeg' // تأكدي من اسم الملف
         );
         await message.channel.send({ embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setColor(CONFIG.color)], components: [row] });
     }

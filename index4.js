@@ -31,61 +31,86 @@ client.on('interactionCreate', async interaction => {
             await interaction.reply({ content: `**دليل السيرفر...** (شرح الرومات كامل كما طلبتِ)`, ephemeral: true });
         }
 
-        if (['t_support', 't_complaint'].includes(interaction.customId)) {
-            const modal = new ModalBuilder().setCustomId('modal_data').setTitle('تفاصيل التذكرة');
-            modal.addComponents(
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reason').setLabel('غرض فتح التكت؟').setStyle(TextInputStyle.Paragraph).setRequired(true)),
-                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('desc').setLabel('وصف الحالة').setStyle(TextInputStyle.Paragraph).setRequired(true))
-            );
-            return await interaction.showModal(modal);
-        }
-        if (interaction.customId === 'btn_close') {
-            const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
-            modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
-            return await interaction.showModal(modal);
-        }
-        if (interaction.customId === 'btn_delete') {
-            const logChannel = interaction.guild.channels.cache.get(CONFIG.logChannel);
-            if (logChannel) {
-                const msgs = await interaction.channel.messages.fetch({ limit: 100 });
-                const transcript = msgs.map(m => `${m.author.tag}: ${m.content}`).reverse().join('\n');
-                await logChannel.send({ content: `**أرشفة تكت:**\n\`\`\`${transcript.slice(0, 1900)}\`\`\`` });
-            }
-            return await interaction.channel.delete();
-        }
-    }
+       // تحميل نقاط الإداريين
+let db = { staffPoints: {} };
+if (fs.existsSync('./tickets_data.json')) db = JSON.parse(fs.readFileSync('./tickets_data.json'));
 
-    if (interaction.isModalSubmit()) {
-        if (interaction.customId === 'modal_data') await createTicket(interaction, interaction.fields.getTextInputValue('reason'), interaction.fields.getTextInputValue('desc'));
-        if (interaction.customId === 'modal_close') {
-            const reason = interaction.fields.getTextInputValue('c_reason');
-            const member = interaction.channel.members.find(m => !m.user.bot && m.id !== interaction.user.id);
-            if (member) member.send(`تم غلق التكت. السبب: ${reason}`).catch(() => {});
-            await interaction.reply(`تم الغلق. السبب: ${reason}`);
-        }
-    }
-});
-
-async function createTicket(interaction, reason, desc) {
-    const channel = await interaction.guild.channels.create({
-        name: `ticket-${interaction.user.username}`,
-        type: ChannelType.GuildText,
-        permissionOverwrites: [{ id: interaction.guild.id, deny: ['ViewChannel'] }, { id: interaction.user.id, allow: ['ViewChannel', 'SendMessages'] }, { id: CONFIG.adminRole, allow: ['ViewChannel', 'SendMessages'] }]
-    });
-    const embed = new EmbedBuilder().setTitle("تذكرة جديدة").setDescription(`**صاحب التكت:** ${interaction.user}\n**السبب:** ${reason}\n**الوصف:** ${desc}`).setColor(CONFIG.color);
-    const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('btn_close').setLabel('غلق').setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId('btn_delete').setLabel('حذف').setStyle(ButtonStyle.Danger)
-    );
-    await channel.send({ content: `<@&${CONFIG.adminRole}>`, embeds: [embed], components: [row] });
-    await interaction.reply({ content: `تم فتح تذكرتك: ${channel}`, ephemeral: true });
-}
+function saveDb() { fs.writeFileSync('./tickets_data.json', JSON.stringify(db, null, 2)); }
 
 client.on('messageCreate', async message => {
     if (!message.content.startsWith('!')) return;
     const args = message.content.slice(1).split(/ +/);
     const cmd = args.shift().toLowerCase();
 
+    // نظام التكت
+    if (cmd === 'تكت') {
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('t_rank').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary)
+        );
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setColor(CONFIG.color).setImage(CONFIG.images.image)], components: [row] });
+    }
+
+    // نظام النقاط
+    if (cmd === 'تكتات') {
+        const member = message.mentions.members.first();
+        if (!member) return message.reply('يرجى منشن الإداري.');
+        const points = db.staffPoints[member.id] || 0;
+        message.reply(`الإداري ${member.displayName} لديه **${points}** تكت تم استلامها.`);
+    }
+});
+
+client.on('interactionCreate', async interaction => {
+    if (interaction.isButton()) {
+        if (interaction.customId.startsWith('t_')) {
+            const modal = new ModalBuilder().setCustomId('modal_ticket').setTitle('تفاصيل التذكرة');
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('reason').setLabel('ما هي مشكلتك؟').setStyle(TextInputStyle.Paragraph).setRequired(true)),
+                new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('desc').setLabel('وصف الحالة (رابط الصورة ان وجد)').setStyle(TextInputStyle.Paragraph).setRequired(true))
+            );
+            return await interaction.showModal(modal);
+        }
+
+        if (interaction.customId === 'btn_claim') {
+            db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
+            saveDb();
+            await interaction.reply(`تم استلام التكت بواسطة ${interaction.user.username}`);
+            interaction.message.edit({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_close').setLabel('غلق التكت').setStyle(ButtonStyle.Danger))] });
+        }
+
+        if (interaction.customId === 'btn_close') {
+            const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
+            modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
+            return await interaction.showModal(modal);
+        }
+    }
+
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_ticket') {
+        const reason = interaction.fields.getTextInputValue('reason');
+        const desc = interaction.fields.getTextInputValue('desc');
+        const channel = await interaction.guild.channels.create({
+            name: `ticket-${interaction.user.username}`,
+            type: ChannelType.GuildText,
+            permissionOverwrites: [{ id: interaction.guild.id, deny: ['ViewChannel'] }, { id: interaction.user.id, allow: ['ViewChannel', 'SendMessages'] }, { id: CONFIG.adminRole, allow: ['ViewChannel', 'SendMessages'] }]
+        });
+        
+        const embed = new EmbedBuilder().setTitle("تذكرة جديدة").setDescription(`**السبب:** ${reason}\n**الوصف:** ${desc}`).setColor(CONFIG.color).setThumbnail(CONFIG.images.thumbnail);
+        const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام').setStyle(ButtonStyle.Success));
+        await channel.send({ content: `<@&${CONFIG.adminRole}>`, embeds: [embed], components: [row] });
+        await interaction.reply({ content: `تم فتح التذكرة: ${channel}`, ephemeral: true });
+        interaction.user.send(`تم فتح تذكرتك في ${channel.name}`).catch(() => {});
+    }
+
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {
+        const reason = interaction.fields.getTextInputValue('c_reason');
+        const log = interaction.guild.channels.cache.get(CONFIG.logChannel);
+        if (log) log.send(`**إغلاق تذكرة:**\nالسبب: ${reason}\nبواسطة: ${interaction.user.username}`);
+        await interaction.reply('جاري الحذف...');
+        await interaction.channel.delete();
+    }
+});
     if (cmd === 'خريطة') {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary),
@@ -94,14 +119,7 @@ client.on('messageCreate', async message => {
         );
         const embed = new EmbedBuilder().setTitle("دليل سيرفر رواف").setColor(CONFIG.color).setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg");
         await message.channel.send({ embeds: [embed], components: [row], files: ['./IMG_5240.jpeg', './IMG_7025.jpeg'] });
-    }
-
-    if (cmd === 'تكت') {
-        const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary)
-        );
-        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setColor(CONFIG.color)], components: [row] });
+    
     }
 
     if (!message.member.roles.cache.has(CONFIG.adminRole)) return;

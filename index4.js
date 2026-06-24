@@ -54,7 +54,7 @@ client.on('interactionCreate', async interaction => {
         const embed = new EmbedBuilder()
             .setTitle("تذكرة جديدة")
             .setDescription(`**صاحب التذكرة:** ${interaction.user}\n**السبب:** ${reason}\n**الشرح:** ${desc}`)
-            .setColor(CONFIG.color);
+            .setColor(4915330);
 
         await channel.send({ content: `${interaction.user}، تم فتح التذكرة. **الآن يرجى إرفاق الصورة المطلوبة هنا في الشات.**`, embeds: [embed] });
         await channel.send({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success))] });

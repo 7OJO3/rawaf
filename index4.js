@@ -25,22 +25,33 @@ client.on('ready', () => {
 
 client.on('interactionCreate', async interaction => {
     if (interaction.isButton()) {
-        if (interaction.customId === 'btn_claim') {
+        const id = interaction.customId;
+
+        // معالجة أزرار التكت
+        if (id === 't_support' || id === 't_complaint') {
+            await interaction.reply({ content: `✅ جاري فتح تذكرتك (${id === 't_support' ? 'دعم فني' : 'شكوى'})...`, ephemeral: true });
+        }
+        
+        // معالجة زر الاستلام
+        if (id === 'btn_claim') {
             db.staffPoints[interaction.user.id] = (db.staffPoints[interaction.user.id] || 0) + 1;
             saveDb();
             await interaction.reply({ content: `✅ **تم استلام التكت بواسطة: ${interaction.user}**` });
             const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_close').setLabel('غلق التكت').setStyle(ButtonStyle.Danger));
             await interaction.message.edit({ components: [row] });
         }
-        if (interaction.customId === 'btn_close') {
+        
+        // معالجة زر الغلق
+        if (id === 'btn_close') {
             const modal = new ModalBuilder().setCustomId('modal_close').setTitle('سبب الغلق');
             modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('c_reason').setLabel('اكتب سبب الغلق').setStyle(TextInputStyle.Paragraph).setRequired(true)));
             return await interaction.showModal(modal);
         }
+
         // أزرار الخريطة
-        if (interaction.customId === 'map_roles') await interaction.reply({ content: `**شرح الرتب...**`, ephemeral: true });
-        if (interaction.customId === 'map_premium') await interaction.reply({ content: `**الرتب المميزة...**`, ephemeral: true });
-        if (interaction.customId === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
+        if (id === 'map_roles') await interaction.reply({ content: `**شرح الرتب...**`, ephemeral: true });
+        if (id === 'map_premium') await interaction.reply({ content: `**الرتب المميزة...**`, ephemeral: true });
+        if (id === 'map_rooms') await interaction.reply({ content: `**دليل الرومات...**`, ephemeral: true });
     }
 
     if (interaction.isModalSubmit() && interaction.customId === 'modal_close') {

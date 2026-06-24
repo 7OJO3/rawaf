@@ -248,12 +248,13 @@ client.on('messageCreate', async message => {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('ticket_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary)
         );
-        const embed = new EmbedBuilder()
-            .setTitle("نظام تذاكر سيرفر رواف")
-            .setDescription("اضغط على الزر لفتح تذكرة جديدة.")
-            .setColor(CONFIG.color)
-            .setImage("attachment://IMG_5240.jpeg") // الصورة الكبيرة
-            .setThumbnail("attachment://IMG_7023.jpg"); // الثامبنيل
+        // تأكدي من أن الكود مكتوب هكذا (بدون ; بعد كل سطر إلا في النهاية):
+const embed = new EmbedBuilder()
+    .setTitle("نظام تذاكر سيرفر رواف")
+    .setDescription("مرحباً بك في نظام التذاكر، الرجاء اختيار القسم المناسب لفتح تذكرة.")
+    .setColor(CONFIG.color)
+    .setImage("attachment://IMG_5240.jpeg") // انتبهي: لا تضعي فاصلة منقوطة هنا
+    .setThumbnail("attachment://IMG_7023.jpg"); // الفاصلة المنقوطة توضع هنا فقط في نهاية الأمبيد
 
         await message.channel.send({ embeds: [embed], components: [row], files: ['./IMG_5240.jpeg', './IMG_7023.jpg'] });
     }

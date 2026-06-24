@@ -205,5 +205,6 @@ client.on('messageCreate', async message => {
         message.guild.members.unban(userId).then(() => message.reply('✅ تم فك الحظر'));
     }
 });
-module.exports = { client };
+// في نهاية index4.js
+module.exports = { client, db };
 client.login(process.env.TOKEN);

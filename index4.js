@@ -24,7 +24,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
 
     if (interaction.customId === 'map_roles') {
-        await interaction.reply({ content: "**السلام عليكم؛**
+        await interaction.reply({ content: `**السلام عليكم؛**
 
 شرح بسيط للرتب، لللإستفسار تواصل مع الاداره
 
@@ -72,7 +72,7 @@ client.on('interactionCreate', async interaction => {
 
 **اللفل المطلوب : 80**
 
-**الخواص : رتبه خاصه**, ephemeral: true });
+**الخواص : رتبه خاصه**`, ephemeral: true });
     }
     if (interaction.customId === 'map_premium') {
         await interaction.reply({ content: "> `الرتب المميزه`
@@ -101,10 +101,10 @@ client.on('interactionCreate', async interaction => {
 
 <@&1519049595244515418> رسام<a:emoji_4:1519150693858938930> 
 
-**الي عندهم حس فني**", ephemeral: true });
+**الي عندهم حس فني**`, ephemeral: true });
     }
     if (interaction.customId === 'map_rooms') {
-        await interaction.reply({ content: "**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
+        await interaction.reply({ content: `**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
 
 
 
@@ -216,7 +216,7 @@ client.on('interactionCreate', async interaction => {
 
 <#1518858567896010913> بلوكس فروت 
 
-<#1518858829759250433> بيت سلمنيتر", ephemeral: true });
+<#1518858829759250433> بيت سلمنيتر`, ephemeral: true });
     }
 });
 

@@ -117,8 +117,9 @@ client.on('messageCreate', async message => {
     }
 });
     
-    }
-   if (cmd === 'خريطة') {
+   }
+
+    if (cmd === 'خريطة') {
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary),
@@ -127,7 +128,9 @@ client.on('messageCreate', async message => {
         const file = new AttachmentBuilder('./IMG_5240.jpeg');
         await message.channel.send({ 
             embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setImage('attachment://IMG_5240.jpeg')], 
-            files: [file], components: [row]
+            files: [file], 
+            components: [row] 
+        });
     }
     if (!message.member.roles.cache.has(CONFIG.adminRole)) return;
     if (cmd === 'طرد') { const m = message.mentions.members.first(); if (m) m.kick(); }

@@ -1,5 +1,9 @@
 const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
+// ربط الملفات الجديدة
+require('./mafia.js');
+require('./roulette.js');
+require('./leaderboard.js');
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],

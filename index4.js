@@ -257,5 +257,59 @@ async function createTicket(interaction, reason, desc) {
     await channel.send({ content: `<@&${CONFIG.adminRole}>`, embeds: [embed], components: [row] });
     await interaction.reply({ content: `تم فتح تذكرتك: ${channel}`, ephemeral: true });
 }
+client.on('messageCreate', async message => {
+    if (!message.content.startsWith('!')) return;
+    if (!message.member.roles.cache.has(CONFIG.adminRole)) return;
 
+    const args = message.content.slice(1).split(/ +/);
+    const cmd = args.shift().toLowerCase();
+
+    // أوامر الإدارة
+    if (cmd === 'طرد') {
+        const member = message.mentions.members.first();
+        if (member) { member.kick(); message.reply('تم طرد العضو.'); }
+    }
+    if (cmd === 'بان') {
+        const member = message.mentions.members.first();
+        if (member) { member.ban(); message.reply('تم حظر العضو.'); }
+    }
+    if (cmd === 'فك-بان') {
+        const userId = args[0];
+        message.guild.members.unban(userId);
+        message.reply('تم فك الحظر.');
+    }
+    if (cmd === 'تغيير-اسم') {
+        const member = message.mentions.members.first();
+        const newNick = args.slice(1).join(' ');
+        if (member) { member.setNickname(newNick); message.reply('تم تغيير الاسم.'); }
+    }
+    if (cmd === 'تايم-اوت') {
+        const member = message.mentions.members.first();
+        if (member) { member.timeout(60 * 1000 * 5, 'مخالفة'); message.reply('تم إعطاء تايم اوت.'); }
+    }
+    if (cmd === 'قفل') {
+        message.channel.permissionOverwrites.edit(message.guild.id, { SendMessages: false });
+        message.reply('تم قفل الشات.');
+    }
+    if (cmd === 'فتح') {
+        message.channel.permissionOverwrites.edit(message.guild.id, { SendMessages: true });
+        message.reply('تم فتح الشات.');
+    }
+    if (cmd === 'مسح') {
+        const amount = parseInt(args[0]);
+        if (amount) { message.channel.bulkDelete(amount, true); message.reply(`تم مسح ${amount} رسالة.`); }
+    }
+    if (cmd === 'اعط-رول') {
+        const member = message.mentions.members.first();
+        const role = message.mentions.roles.first();
+        if (member && role) { member.roles.add(role); message.reply('تم إضافة الرتبة.'); }
+    }
+    if (cmd === 'شيل-رول') {
+        const member = message.mentions.members.first();
+        const role = message.mentions.roles.first();
+        if (member && role) { member.roles.remove(role); message.reply('تم إزالة الرتبة.'); }
+    }
+});
+
+client.login(process.env.TOKEN);
 client.login(process.env.TOKEN);

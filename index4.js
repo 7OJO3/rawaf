@@ -39,7 +39,6 @@ require('./leaderboard.js');
 // [هنا تضعين كود الـ interactionCreate والـ messageCreate الخاص بك كما هو]
 // (ملاحظة: تأكدي أن CONFIG معرف هنا أيضاً أو استخدمي module.exports)
 
-});
 
 client.on('interactionCreate', async interaction => {
     // 1. فتح التكت

@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
         const id = interaction.customId;
 
         // معالجة أزرار الخريطة
-        if (id === 'map_roles') return await interaction.reply({ content: '// > **رتب التفاعل**
+        if (id === 'map_roles') return await interaction.reply({ content: '**رتب التفاعل**
 
 <@&1519046388430803065> 
 

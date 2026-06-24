@@ -9,7 +9,7 @@ const client = new Client({
 const CONFIG = {
     adminRole: "1519051140833218751",
     logChannel: "1518876917527482398",
-    categoryID: "ضع_ID_القسم_هنا", // <-- ضعي ID القسم الذي ستنزل فيه التكتات هنا
+    categoryID: "<#1518876917527482398>", // <-- ضعي ID القسم الذي ستنزل فيه التكتات هنا
     thumb: './IMG_7025.jpeg',
     mainImg: './IMG_5240.jpeg'
 };

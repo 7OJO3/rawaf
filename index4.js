@@ -1,0 +1,272 @@
+const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, ActivityType, AttachmentBuilder } = require('discord.js');
+
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
+    partials: [Partials.Channel, Partials.Message]
+});
+
+const CONFIG = {
+    adminRole: "1519051140833218751",
+    logChannel: "1518876917527482398",
+    color: 0x4B0082 // البنفسجي الغامق
+};
+
+client.on('ready', () => {
+    console.log(`Logged in as ${client.user.tag}!`);
+    client.user.setActivity('RAWAF SA BOT', {
+        type: ActivityType.Streaming,
+        url: 'https://www.twitch.tv/rawaf'
+    });
+});
+
+// التعامل مع أوامر الخريطة (الأزرار)
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+
+    if (interaction.customId === 'map_roles') {
+        await interaction.reply({ content: "**السلام عليكم؛**\nشرح بسيط للرتب، للإستفسار تواصل مع الاداره\n> `رتب التفاعل`\n<@&1519046388430803065> اللفل المطلوب : 5\n<@&1519046968469491752> اللفل المطلوب : 10\n<@&1519047263626727647> اللفل المطلوب : 15\n<@&1519047654116425758> اللفل المطلوب : 25\n<@&1519047973965795540> اللفل المطلوب : 35\n<@&1519048167188861018> اللفل المطلوب : 60\n<@&1519048390187548722> اللفل المطلوب : 80", ephemeral: true });
+    }
+    if (interaction.customId === 'map_premium') {
+        await interaction.reply({ content: "> `الرتب المميزه`\n<@&1519048728755830785> يوتيوبر - قناتك فوق الالف\n<@&1519048847559622769> تيكتوكر - حسابك فوق 10k\n<@&1519049800287518780> فانز 1k+\n<@&1519049858047152279> فانز 10k+\n<@&1519049752157749418> كخاوي\n<@&1519049595244515418> رسام", ephemeral: true });
+    }
+    if (interaction.customId === 'map_rooms') {
+        await interaction.reply({ content: "**اهلاً وسهلا بك في دليل السيرفر**\n(تم وضع شرح الرومات هنا...)", ephemeral: true });
+    }
+});
+
+client.on('messageCreate', async message => {
+    if (!message.content.startsWith('!')) return;
+    const args = message.content.slice(1).split(/ +/);
+    const cmd = args.shift().toLowerCase();
+
+    if (cmd === 'خريطة') {
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('map_roles').setLabel('**السلام عليكم؛**
+
+شرح بسيط للرتب، لللإستفسار تواصل مع الاداره
+
+
+
+> `رتب التفاعل`
+
+<@&1519046388430803065> 
+
+**اللفل المطلوب : 5**
+
+**استمتع بالسيرفر**
+
+<@&1519046968469491752> 
+
+**اللفل المطلوب : 10**
+
+**الخواص: استخدام ايموجيز من خارج السيرفر واضافة رياكشنز**
+
+<@&1519047263626727647> 
+
+**اللفل المطلوب : 15**
+
+**الخواص: تغيير اسمك بالسيرفر**
+
+<@&1519047654116425758> 
+
+**اللفل المطلوب : 25**
+
+**الخواص: اختيار لونك الخاص <#1518870053192466503> **
+
+<@&1519047973965795540> 
+
+**اللفل المطلوب :35**
+
+**الخواص : ارسال صور وفيديوهات بالشات العام**
+
+<@&1519048167188861018> 
+
+**اللفل المطلوب :60**
+
+**الخواص : جميع ماسبق**
+
+<@&1519048390187548722> 
+
+**اللفل المطلوب : 80**
+
+**الخواص : رتبه خاصه**').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_accounts').setLabel('الحسابات الرسمية').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_premium').setLabel('> `الرتب المميزه`
+
+
+
+<@&1519048728755830785>  يوتيوبر<a:E4N_youtube:1011043043987702001> 
+
+**قناتك لازم تكون فيها فوق الالف**
+
+<@&1519048847559622769> تيكتوكر<:MT_TikTok:1471085067903172709> 
+
+**حسابك لازم يكون فيه 10k+**
+
+<a:emoji_2:1519149426940051546> <@&1519049800287518780> 
+
+**فانزات رواف الي عندهم 1k+ **
+
+<a:emoji_1:1519149136551608502> <@&1519049858047152279> 
+
+**فانزات رواف الي عندهم 10k+**
+
+<@&1519049752157749418> كخاوي
+
+**الي عنده لبس "كخه" **
+
+<@&1519049595244515418> رسام<a:emoji_4:1519150693858938930> 
+
+**الي عندهم حس فني**').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('map_rooms').setLabel('**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
+
+
+
+> `رومات السيرفر :`
+
+
+
+**الرومات العامه :**
+
+<#1518860063496867871>  
+
+### ترحيب لك عند دخولك
+
+-
+
+<#1518860483392704533> 
+
+### هنا يظهر تقدمك بالسيرفر وكم اجتزت لفل
+
+-
+
+<#1518860676494397620> 
+
+### بوستات السيرفر 
+
+
+
+> `شاتات السيرفر :`
+
+
+
+<#1518851646174662707> لمتابعة أحدث وأخر اخبار السيرفر
+
+-
+
+<#1518852029089579059> لإختيار الرتب واهتمامك بالسيرفر
+
+-
+
+<#1518850225991848016> لفتح تذكرة دعم للإدارة والأقسام 
+
+-
+
+<#1518847251731185825> الشات العام للتحدث مع الأعضاء دون مخالفة القوانين
+
+-
+
+<#1518854040660869301> لمشاركة فنكم وابداعاتكم بالرسم
+
+-
+
+<#1518855027731599477> 
+
+اقتراحاتكم لفيديوهات رواف الجايه
+
+-
+
+<#1518870053192466503> تغير لونك بالسيرفر
+
+
+
+> `أقسام السيرفر :`
+
+
+
+**قسم الفعاليات :**
+
+<#1518853454443839619> شات الفعاليات عند اقامة فعاليه سيتم فتح الشات ويمكنك المشاركه 
+
+<#1518853717825425579>  الفايزين مع رواف يقدرون يكتبون بالروم هذا
+
+
+
+**قسم الالعاب :**
+
+<#1518852185142591518> 
+
+
+
+**قسم التصاميم :**
+
+<#1518859276683182142> تصاميمكم لرواف
+
+<#1518856037707546657> رسماتكم لرواف
+
+
+
+**قسم الفانزات :**
+
+<#1518871220706082867>  شات فانزات رواف الالماسيين
+
+-
+
+<#1518849706631893032> شات الكخاويين
+
+-
+
+<#1518849203722391754> يوزراتكم بروبلوكس
+
+
+
+**قسم التريدات :**
+
+<#1518857546822320131>  قوانين التريدات
+
+<#1518858420097126462> تريدات ام ام تو
+
+<#1518857897289842720> تريدات ادوبت مي
+
+<#1518858567896010913> بلوكس فروت 
+
+<#1518858829759250433> بيت سلمنيتر').setStyle(ButtonStyle.Secondary)
+        );
+        const embed = new EmbedBuilder()
+            .setTitle("مرحباً بك في سيرفر رواف")
+            .setDescription("هنا تجد دليلك لكل شيء")
+            .setColor(CONFIG.color)
+            .setThumbnail("attachment://IMG_7023.jpg");
+        
+        await message.channel.send({ embeds: [embed], components: [row], files: ['./IMG_7023.jpg'] });
+    }
+});
+
+// نظام التكت (نفس المنطق السابق)
+client.on('interactionCreate', async interaction => {
+    if (interaction.isButton() && interaction.customId.startsWith('ticket_')) {
+        const modal = new ModalBuilder().setCustomId('modal_ticket').setTitle('استبيان التكت');
+        modal.addComponents(new ActionRowBuilder().addComponents(
+            new TextInputBuilder().setCustomId('reason').setLabel('سبب الفتح؟').setStyle(TextInputStyle.Paragraph).setRequired(true)
+        ));
+        await interaction.showModal(modal);
+    }
+});
+
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isModalSubmit()) return;
+    const channel = await interaction.guild.channels.create({
+        name: `ticket-${interaction.user.username}`,
+        type: ChannelType.GuildText,
+        permissionOverwrites: [
+            { id: interaction.guild.id, deny: ['ViewChannel'] },
+            { id: interaction.user.id, allow: ['ViewChannel', 'SendMessages'] },
+            { id: CONFIG.adminRole, allow: ['ViewChannel', 'SendMessages'] }
+        ]
+    });
+    const embed = new EmbedBuilder().setDescription(`السبب: ${interaction.fields.getTextInputValue('reason')}`).setColor(CONFIG.color);
+    await channel.send({ content: `<@&${CONFIG.adminRole}>`, embeds: [embed] });
+    await interaction.reply({ content: 'تم فتح التكت', ephemeral: true });
+});
+
+client.login(process.env.TOKEN);

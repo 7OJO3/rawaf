@@ -56,7 +56,7 @@ client.on('interactionCreate', async interaction => {
             .setDescription(`**صاحب التذكرة:** ${interaction.user}\n**السبب:** ${reason}\n**الشرح:** ${desc}`)
             .setColor(4915330);
 
-        await channel.send({ content: `${interaction.user}، تم فتح التذكرة. بانتظار الإدارة.`, embeds: [embed] });
+        await channel.send({ content: `<@&1519051140833218751>، ${interaction.user} الرجاء انتظار احد الاداريين لاستلام التكت.`, embeds: [embed] });
         await channel.send({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('btn_claim').setLabel('استلام التكت').setStyle(ButtonStyle.Success))] });
         await interaction.editReply({ content: `✅ تم إنشاء تذكرتك في: ${channel}` });
     }

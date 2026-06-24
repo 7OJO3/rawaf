@@ -1,17 +1,15 @@
 const { client } = require('./index4.js');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 let lobby = [];
 let gameStarted = false;
 
-// دالة توزيع الأدوار
+// 1. منطق توزيع الأدوار
 async function startMafia(interaction) {
     if (lobby.length < 4) return interaction.reply({ content: "⚠️ يجب أن يكون هناك 4 لاعبين على الأقل للبدء!", ephemeral: true });
     
     gameStarted = true;
     let roles = ['مافيا', 'طبيب', 'شايب', 'فخ', 'مواطن', 'مواطن']; 
-    
-    // خلط الأدوار عشوائياً
     roles = roles.sort(() => Math.random() - 0.5);
 
     interaction.reply("🎮 **بدأت اللعبة! تم إرسال الأدوار في الخاص للجميع.**");
@@ -32,13 +30,36 @@ async function startMafia(interaction) {
     });
 }
 
-// الاستماع للأزرار
+// 2. أمر استدعاء اللعبة (رسالة البداية)
+client.on('messageCreate', async message => {
+    if (message.content.startsWith('!مافيا')) {
+        if (message.author.bot) return;
+
+        const embed = new EmbedBuilder()
+            .setTitle("🎮 لعبة المافيا - سيرفر رواف")
+            .setDescription("اضغط على زر **انضمام** للمشاركة. \n\n⚠️ **تنبيه:** تأكد أن خاصك (DM) مفتوح، وإلا لن تستطيع استلام دورك!")
+            .setColor(0x2f3136);
+
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('join_mafia').setLabel('انضمام').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('leave_mafia').setLabel('خروج').setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId('start_mafia_btn').setLabel('بدء اللعبة (للإدارة)').setStyle(ButtonStyle.Primary)
+        );
+
+        await message.channel.send({ embeds: [embed], components: [row] });
+        // تصفير اللوبي عند بدء طلب لعبة جديدة
+        lobby = [];
+        gameStarted = false;
+    }
+});
+
+// 3. معالجة الأزرار
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
 
     if (interaction.customId === 'join_mafia') {
         if (gameStarted) return interaction.reply({ content: "❌ اللعبة بدأت بالفعل!", ephemeral: true });
-        if (!lobby.includes(interaction.member)) {
+        if (!lobby.find(m => m.id === interaction.member.id)) {
             lobby.push(interaction.member);
             interaction.reply({ content: "✅ تم انضمامك للعبة المافيا!", ephemeral: true });
         } else {
@@ -52,7 +73,6 @@ client.on('interactionCreate', async interaction => {
     }
 
     if (interaction.customId === 'start_mafia_btn') {
-        // التحقق من صلاحية الإدارة للبدء
         if (!interaction.member.permissions.has('Administrator')) 
             return interaction.reply({ content: "❌ فقط الإدارة يمكنها بدء اللعبة!", ephemeral: true });
         

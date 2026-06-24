@@ -75,7 +75,7 @@ client.on('interactionCreate', async interaction => {
         const id = interaction.customId;
 
         // معالجة أزرار الخريطة
-        if (id === 'map_roles') return await interaction.reply({ content: `// > `رتب التفاعل`
+        if (id === 'map_roles') return await interaction.reply({ content: '// > `رتب التفاعل`
 
 <@&1519046388430803065> 
 
@@ -117,8 +117,8 @@ client.on('interactionCreate', async interaction => {
 
 **اللفل المطلوب : 80**
 
-**الخواص : رتبه خاصه**`, ephemeral: true });
-        if (id === 'map_premium') return await interaction.reply({ content: `// > `الرتب المميزه`
+**الخواص : رتبه خاصه**', ephemeral: true });
+        if (id === 'map_premium') return await interaction.reply({ content: '// > `الرتب المميزه`
 
 
 
@@ -144,8 +144,8 @@ client.on('interactionCreate', async interaction => {
 
 <@&1519049595244515418> رسام
 
-**الي عندهم حس فني**`, ephemeral: true });
-        if (id === 'map_rooms') return await interaction.reply({ content: `**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
+**الي عندهم حس فني**', ephemeral: true });
+        if (id === 'map_rooms') return await interaction.reply({ content: '**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
 
 
 
@@ -257,7 +257,7 @@ client.on('interactionCreate', async interaction => {
 
 <#1518858567896010913> بلوكس فروت 
 
-<#1518858829759250433> بيت سلمنيتر`, ephemeral: true });
+<#1518858829759250433> بيت سلمنيتر', ephemeral: true });
 
         // معالجة أزرار التكت
         if (id === 'btn_claim') {

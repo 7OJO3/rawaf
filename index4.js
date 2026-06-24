@@ -75,9 +75,189 @@ client.on('interactionCreate', async interaction => {
         const id = interaction.customId;
 
         // معالجة أزرار الخريطة
-        if (id === 'map_roles') return await interaction.reply({ content: `**شرح الرتب:**\n(أضيفي هنا شرح الرتب الخاص بك)`, ephemeral: true });
-        if (id === 'map_premium') return await interaction.reply({ content: `**الرتب المميزة:**\n(أضيفي هنا تفاصيل الرتب المميزة)`, ephemeral: true });
-        if (id === 'map_rooms') return await interaction.reply({ content: `**دليل الرومات:**\n(أضيفي هنا دليل الرومات)`, ephemeral: true });
+        if (id === 'map_roles') return await interaction.reply({ content: `// > `رتب التفاعل`
+
+<@&1519046388430803065> 
+
+**اللفل المطلوب : 5**
+
+**استمتع بالسيرفر**
+
+<@&1519046968469491752> 
+
+**اللفل المطلوب : 10**
+
+**الخواص: استخدام ايموجيز من خارج السيرفر واضافة رياكشنز**
+
+<@&1519047263626727647> 
+
+**اللفل المطلوب : 15**
+
+**الخواص: تغيير اسمك بالسيرفر**
+
+<@&1519047654116425758> 
+
+**اللفل المطلوب : 25**
+
+**الخواص: اختيار لونك الخاص <#1518870053192466503> **
+
+<@&1519047973965795540> 
+
+**اللفل المطلوب :35**
+
+**الخواص : ارسال صور وفيديوهات بالشات العام**
+
+<@&1519048167188861018> 
+
+**اللفل المطلوب :60**
+
+**الخواص : جميع ماسبق**
+
+<@&1519048390187548722> 
+
+**اللفل المطلوب : 80**
+
+**الخواص : رتبه خاصه**`, ephemeral: true });
+        if (id === 'map_premium') return await interaction.reply({ content: `// > `الرتب المميزه`
+
+
+
+<@&1519048728755830785>  يوتيوبر 
+
+**قناتك لازم تكون فيها فوق الالف**
+
+<@&1519048847559622769> تيكتوكر 
+
+**حسابك لازم يكون فيه 10k+**
+
+ <@&1519049800287518780> 
+
+**فانزات رواف الي عندهم 1k+ **
+
+ <@&1519049858047152279> 
+
+**فانزات رواف الي عندهم 10k+**
+
+<@&1519049752157749418> كخاوي
+
+**الي عنده لبس "كخه" **
+
+<@&1519049595244515418> رسام
+
+**الي عندهم حس فني**`, ephemeral: true });
+        if (id === 'map_rooms') return await interaction.reply({ content: `**اهلاً وسهلا بك في دليل السيرفر ، هنا سيتم شرح أبزر الاشياء الموجوده داخل السيرفر:**
+
+
+
+// > `رومات السيرفر :`
+
+
+
+**الرومات العامه :**
+
+<#1518860063496867871>  
+
+### ترحيب لك عند دخولك
+
+-
+
+<#1518860483392704533> 
+
+### هنا يظهر تقدمك بالسيرفر وكم اجتزت لفل
+
+-
+
+<#1518860676494397620> 
+
+### بوستات السيرفر 
+
+
+
+// > `شاتات السيرفر :`
+
+
+
+<#1518851646174662707> لمتابعة أحدث وأخر اخبار السيرفر
+
+-
+
+<#1518852029089579059> لإختيار الرتب واهتمامك بالسيرفر
+
+-
+
+<#1518850225991848016> لفتح تذكرة دعم للإدارة والأقسام 
+
+-
+
+<#1518847251731185825> الشات العام للتحدث مع الأعضاء دون مخالفة القوانين
+
+-
+
+<#1518854040660869301> لمشاركة فنكم وابداعاتكم بالرسم
+
+-
+
+<#1518855027731599477> 
+
+اقتراحاتكم لفيديوهات رواف الجايه
+
+-
+
+<#1518870053192466503> تغير لونك بالسيرفر
+
+
+
+// > `أقسام السيرفر :`
+
+
+
+**قسم الفعاليات :**
+
+<#1518853454443839619> شات الفعاليات عند اقامة فعاليه سيتم فتح الشات ويمكنك المشاركه 
+
+<#1518853717825425579>  الفايزين مع رواف يقدرون يكتبون بالروم هذا
+
+
+
+**قسم الالعاب :**
+
+<#1518852185142591518> 
+
+
+
+**قسم التصاميم :**
+
+<#1518859276683182142> تصاميمكم لرواف
+
+<#1518856037707546657> رسماتكم لرواف
+
+
+
+**قسم الفانزات :**
+
+<#1518871220706082867>  شات فانزات رواف الالماسيين
+
+-
+
+<#1518849706631893032> شات الكخاويين
+
+-
+
+<#1518849203722391754> يوزراتكم بروبلوكس
+
+
+
+**قسم التريدات :**
+
+<#1518857546822320131>  قوانين التريدات
+
+<#1518858420097126462> تريدات ام ام تو
+
+<#1518857897289842720> تريدات ادوبت مي
+
+<#1518858567896010913> بلوكس فروت 
+
+<#1518858829759250433> بيت سلمنيتر`, ephemeral: true });
 
         // معالجة أزرار التكت
         if (id === 'btn_claim') {
@@ -129,11 +309,11 @@ client.on('messageCreate', async message => {
     if (cmd === 'تكت') {
         const row1 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_support').setLabel('تواصل مع الإدارة').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('t_complaint').setLabel('شكوى').setStyle(ButtonStyle.Primary));
         const row2 = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('t_role').setLabel('طلب رتبة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('t_creator').setLabel('صناع المحتوى').setStyle(ButtonStyle.Secondary));
-        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("نظام تذاكر سيرفر رواف").setDescription("الرجاء اختيار القسم المناسب.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row1, row2] });
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("مرحبا بك في قسم الدعم الفني").setDescription("اذا كنت تواجه مشكلة,تحتاج الى مساعدهواو ترغب بتقديم بلاغ, يمكنك فتح تذكره وسيتولى فريقنا مساعدتك.").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row1, row2] });
     }
     if (cmd === 'خريطة') {
         const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('map_roles').setLabel('شرح رتب').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_premium').setLabel('رتب مميزة').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('map_rooms').setLabel('شرح رومات').setStyle(ButtonStyle.Secondary));
-        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("دليل سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row] });
+        await message.channel.send({ embeds: [new EmbedBuilder().setTitle("مرحبا بك, هنا تجد دليلك لجميع رتب ورولات سيرفر رواف").setThumbnail("attachment://IMG_7025.jpeg").setImage("attachment://IMG_5240.jpeg")], files: [CONFIG.thumb, CONFIG.mainImg], components: [row] });
     }
     // ... باقي الأوامر (تكتات، طرد، قفل، فتح)
     if (cmd === 'تكتات') { const member = message.mentions.members.first(); if (member) message.reply(`الإداري ${member.displayName} استلم **${db.staffPoints[member.id] || 0}** تكت.`); }
